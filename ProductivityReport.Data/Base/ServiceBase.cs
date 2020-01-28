@@ -1,35 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace ProductivityReport.Data {
-	public class ServiceBase<T>
+	public abstract class ServiceBase<T> : IServiceBase<T>
 		where T: class {
 		
-		private ProductivityReportContext _context;
+		protected ProductivityReportContext _context;
 
 		public ServiceBase(ProductivityReportContext context) {
 			_context = context;
 		}
-		public void Create(T obj) {
+		public void Add(T obj) {
 			_context.Set<T>().Add(obj);
 			_context.SaveChanges();
 		}
 
-		public void Edit(T obj) {
-
+		public void Update(T obj) {
+			_context.Set<T>().Update(obj);
+			_context.SaveChanges();
 		}
 
-		public void Delete(int id) {
-
+		public void Remove(T obj) {
+			_context.Set<T>().Remove(obj);
+			_context.SaveChanges();
 		}
 
-		public T Get(int id) {
-
-		}
-
-		public IEnumerable<T> Get() {
-
-		}
+		public abstract T Get(int id);
 	}
 }
