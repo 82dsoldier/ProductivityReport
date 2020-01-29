@@ -10,7 +10,7 @@ namespace ProductivityReport.Data {
 		public virtual DbSet<Message> Messages { get; set; }
 		public virtual DbSet<Operator> Operators { get; set; }
 		public virtual DbSet<Visitor> Visitors { get; set; }
-		public ProductivityReportContext([NotNullAttribute] DbContextOptions options) : base(options) {
+		public ProductivityReportContext(DbContextOptions options) : base(options) {
 		}
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
