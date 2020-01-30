@@ -10,6 +10,7 @@ namespace ProductivityReport.Data {
 		public virtual DbSet<Message> Messages { get; set; }
 		public virtual DbSet<Operator> Operators { get; set; }
 		public virtual DbSet<Visitor> Visitors { get; set; }
+		public virtual DbSet<ProductivityReportEntry> ProductivityReportView { get; set; }
 		public ProductivityReportContext(DbContextOptions options) : base(options) {
 		}
 
@@ -54,6 +55,11 @@ namespace ProductivityReport.Data {
 				a.Property(b => b.Browser).HasMaxLength(900);
 				a.Property(b => b.Device).HasMaxLength(980);
 				a.Property(b => b.IPAddress).HasMaxLength(890);
+			});
+
+			modelBuilder.Entity<ProductivityReportEntry>(a => {
+				a.ToTable("ProductivityReport");
+				a.HasKey(b => b.OperatorID);
 			});
 		}
 	}

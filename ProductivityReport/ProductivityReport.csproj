@@ -24,7 +24,7 @@
 
 
   <ItemGroup>
-    <Folder Include="src\scss\" />
+    <Folder Include="wwwroot\css\" />
   </ItemGroup>
 
 

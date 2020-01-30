@@ -20,6 +20,7 @@ namespace ProductivityReport.Data
             services.AddTransient<IMessageService, MessageService>();
             services.AddTransient<IOperatorService, OperatorService>();
             services.AddTransient<IVisitorService, VisitorService>();
+            services.AddTransient<IProductivityReportService, ProductivityReportService>();
         }
     }
 }

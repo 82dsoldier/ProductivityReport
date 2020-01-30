@@ -9,7 +9,8 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
+using ProductivityReport.api;
+//TODO:  Configure security
 namespace ProductivityReport {
 	public class Startup {
 		public Startup(IConfiguration configuration) {
@@ -29,6 +30,8 @@ namespace ProductivityReport {
 
 
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+			//TODO:  Add other controllers here when needed
+			services.AddTransient<ProductivityReportController>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

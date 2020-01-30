@@ -4,13 +4,11 @@ var OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 module.exports = {
   entry: {
-    //'Application/application': './src/js/Application/application.tsx',
-    'server': './src/ts/server.tsx',
-    'drive': './src/ts/drive.tsx'
+    'home/index': ['./src/ts/home/index.tsx', './src/scss/common.scss']
   },
   devtool: 'source-map',
   output: {
-    path: path.resolve(__dirname, 'Layouts/Application.Management'),
+    path: path.resolve(__dirname, 'wwwroot'),
     filename: 'js/[name].js'
   },
   module: {
