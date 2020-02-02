@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="src\ts\home\index.tsx" />
+    <None Remove="src\ts\home\new_index.tsx" />
     <None Remove="src\ts\modules\productivity-entry.ts" />
   </ItemGroup>
 
@@ -29,7 +29,7 @@
 
 
   <ItemGroup>
-    <TypeScriptCompile Include="src\ts\home\index.tsx" />
+    <TypeScriptCompile Include="src\ts\home\new_index.tsx" />
     <TypeScriptCompile Include="src\ts\modules\productivity-entry.ts" />
   </ItemGroup>
 

@@ -6,6 +6,6 @@ namespace ProductivityReport.Data
 {
     public interface IProductivityReportService
     {
-        IEnumerable<ProductivityReportLine> GetReport();
+        IEnumerable<ProductivityReportLine> GetReport(DateTime? startDate, DateTime? endDate, string webSite, string device);
     }
 }

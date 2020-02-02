@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -24,8 +25,10 @@ namespace ProductivityReport.Models
         public IEnumerable<OperatorReportViewModel> OperatorProductivity { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-        public int FilterType { get; set; }
         public string PredefinedFilter { get; set; }
-
+        public string FilterType { get; set; }
+        public List<SelectListItem> PredefinedFilterOptions { get; set; }
+        public List<SelectListItem> Websites { get; set; }
+        public List<SelectListItem> Devices { get; set; }
     }
 }

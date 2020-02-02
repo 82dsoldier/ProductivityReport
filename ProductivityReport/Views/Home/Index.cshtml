@@ -1,9 +1,122 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using ProductivityReport.Models
+@model OperatorReportItems
+
+@{
+    ViewBag.Title = "Operator Report";
 }
+    <div class="container-md">
+        <h2>Operator Report</h2>
 
-<div id="app"></div>
 
-@section Scripts {
+        <table class="table-bordered">
+            <thead>
+                <tr>
+                    <th>S.No.</th>
+                    <th>Operator Name</th>
+                    <th>Proactive Sent</th>
+                    <th>Proactive Answered</th>
+                    <th>Proactive Response Rate</th>
+                    <th>Reactive Received</th>
+                    <th>Reactive Answered</th>
+                    <th>Reactive Response Rate</th>
+                    <th>Total Chat Length</th>
+                    <th>Average Chat Length</th>
+                </tr>
+                @foreach (OperatorReportViewModel item in Model.OperatorProductivity)
+                {
+                    <tr>
+                        <td>@item.ID</td>
+                        <td>@item.Name</td>
+                        <td>@item.ProactiveSent</td>
+                        <td>@item.ProactiveAnswered</td>
+                        <td>@item.ProactiveResponseRate</td>
+                        <td>@item.ReactiveReceived</td>
+                        <td>@item.ReactiveAnswered</td>
+                        <td>@item.ReactiveResponseRate</td>
+                        <td>@item.TotalChatLength</td>
+                        <td>@item.AverageChatLength</td>
+                    </tr>
+                }
+            </thead>
+        </table>
+        <div>
+            <form method="post" id="filterForm">
+                <input type="hidden" name="startDate" id="startDate" value="@Model.StartDate" />
+                <input type="hidden" name="endDate" id="endDate" value="@Model.EndDate" />
+                <div class="row">
+                    <div class="col-md-4 h4">Date Filter</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2 align-middle">
+                        <input type="radio" name="filterType" id="filterTypePredefined" value="1" @(Model.FilterType != "2" ? "checked" : "") />
+                        &nbsp; &nbsp; Predefined
+                    </div>
+                    <div class="col-md-3 align-middle">
+                        <select id="predefinedFilter" name="predefinedFilter" asp-items="Model.PredefinedFilterOptions">
+                            <option value="0"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2 align-middle">
+                        <input type="radio" name="filterType" id="filterTypeCustom" value="2" @(Model.FilterType == "2" ? "checked" : "") />
+                        &nbsp; &nbsp; Custom
+                    </div>
+                    <div class="col-md-1 align-middle">Start Date</div>
+                    <div class="col-md-2 align-middle"><input type="text" id="startDateText" value="@Model.StartDate?.ToString("d")" class="form-control" @(Model.FilterType != "2" ? "disabled" : "") /></div>
+                    <div class="col-md-1 align-middle">End Date</div>
+                    <div class="col-md-2 align-middle"><input type="text" id="endDateText" value="@Model.EndDate?.ToString("d")" class="form-control" @(Model.FilterType != "2" ? "disabled" : "") /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-1 offset-2">Website</div>
+                    <select id="website" name="website" asp-items="Model.Websites">
+                        <option value="0"></option>
+                    </select>
+                </div>
+                <div class="row">
+                    <div class="col-md-1 offset-2">Device</div>
+                    <select id="device" name="device" asp-items="Model.Devices">
+                        <option value="0"></option>
+                    </select>
+                </div>
+                <div class="row">
+                    <div class="col-md-1"><input type="submit" /></div>
+                    <div class="col-md-1"><button id="clearFilters">Clear</button></div>
+                </div>
+            </form>
+        </div>
+        <div>
+            <p>This is the original code.  As requested, the front end has been modified to provide searchability via date range (selectable or customizable), web site, and device.  The original backend code has been migrated into HomeController.cs.  Since the upgrades requested require both a GET and POST method, the method to retrieve data was pulled into its own private method.  This allows access by any method in HomeController.cs while keeping it from being used by anything else.</p>
+            <p>The most major changes to this version are in the database where I have done the following:</p>
+            <ul>
+                <li>Rewrote the original database creation script as the one supplied would not work due to the creation sections being out of order.  Other minor errors were corrected as well.
+                    <ul>
+                        <li>Some of the data could not be corrected and was left out of the database.  Some of the entries in the Operators or Visitors table were not included in the supplied data and when proper relationships were applied, some of the Conversations and Messages data was also excluded.</li>
+                    </ul>
+                </li>
+                <li>Normalized the pluralization of table names within the database.</li>
+                <li>Verified all necessary relationships existed on the tables.</li>
+                <li>Rewrote the stored procedure that creates the report.
+                    <ul>
+                        <li>The original procedure was overly complex and contained an overabundance of joins.  I felt that this stored procedure would bog down under heavy loads against large data sets.  This complexity was reduced with the use of CTEs making for a procedure that not only performs better, but is easier to read and debug.</li>
+                        <li>Adding parameters to the original procedure would have increased the complexity.</li>
+                        <li>The data provided by the original procedure did not appear to be correct as the totals provided were more than the count of messages in the table.</li>
+                    </ul>
+                </li>
+            </ul>
+            <p>TODO for this version:</p>
+            <ul>
+                <li>Move the connection string to a configuration file to secure access and ensure security and make it easier to change if necessary.</li>
+                <li>Set the site up to run under a service account to avoid having a username and password embedded in the connection string.</li>
+                <li>Add additional styling such as justification and table striping for readability.</li>
+                <li>Add error checking and reporting to both the back-end code and the javascript.</li>
+            </ul>
+        </div>
+    </div>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+        integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+        crossorigin="anonymous"></script>
 <script src="~/js/home/index.js"></script>
-}

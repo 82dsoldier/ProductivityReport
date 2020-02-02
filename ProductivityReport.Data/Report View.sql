@@ -1,10 +1,23 @@
-﻿CREATE VIEW ProductivityReport AS
+﻿DECLARE @StartDate DATE = NULL
+DECLARE	@EndDate DATE = NULL
+
+	IF @StartDate IS NULL
+	BEGIN
+		SET @StartDate = CONVERT(DATETIME, '1753-01-01T00:00:01', 126)
+	END
+
+	IF @EndDate IS NULL
+	BEGIN
+		SET @EndDate = CONVERT(DATETIME, '9999-12-31T00:00:00', 126)
+	END;
+
 With RowNumberCTE (RowNumber, ConversationID, MessageID, OperatorID, MessageFrom) AS
 (
 	SELECT ROW_NUMBER() OVER (PARTITION BY Messages.ConversationID ORDER BY MessageID) RowNumber, Messages.ConversationID, MessageID, 
 	Conversations.OperatorID, MessageFrom
 	FROM Messages
 	JOIN Conversations ON Messages.ConversationID=Conversations.ConversationID
+	--WHERE StartDate >= @StartDate AND EndDate <= @EndDate
 	GROUP BY Messages.ConversationID, MessageID, Conversations.OperatorID, MessageFrom, MessageText
 ),
 ProactiveSentCTE (ProactiveSent, OperatorID) AS
@@ -39,13 +52,13 @@ TotalChatLengthCTE (TotalChatLength, TotalChats, OperatorID) AS
 (
 	SELECT SUM(DATEDIFF(s, StartDate, EndDate)), COUNT(ConversationID), OperatorID
 	FROM Conversations
+	--WHERE StartDate >= @StartDate AND EndDate <= @EndDate
 	GROUP BY OperatorID
 )
-SELECT o.OperatorID, o.Name, ps.ProactiveSent, pa.ProactiveAnswered, rr.ReactiveReceived, ra.ReactiveAnswered, tc.TotalChatLength, tc.TotalChats, c.StartDate
+SELECT o.OperatorID, o.Name, ps.ProactiveSent, pa.ProactiveAnswered, rr.ReactiveReceived, ra.ReactiveAnswered, tc.TotalChatLength, tc.TotalChats
 FROM Operators o
 LEFT JOIN ProactiveSentCTE ps on o.OperatorID=ps.OperatorID
 LEFT JOIN ProactiveAnsweredCTE pa ON o.OperatorID=pa.OperatorID
 LEFT JOIN ReactiveReceivedCTE rr ON o.OperatorID=rr.OperatorID
 LEFT JOIN ReactiveAnsweredCTE ra ON o.OperatorID=ra.OperatorID
 LEFT JOIN TotalChatLengthCTE tc ON o.OperatorID=tc.OperatorID
-LEFT JOIN Conversations c ON o.OperatorID=c.OperatorID

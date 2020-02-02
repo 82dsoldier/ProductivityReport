@@ -10,14 +10,16 @@ namespace ProductivityReport.api
     [Route("api/[controller]")]
     public class ProductivityReportController : Controller
     {
-        private IProductivityReportService _service;
+#pragma warning disable IDE0052 // Remove unread private members
+        private readonly IProductivityReportService _service;
+#pragma warning restore IDE0052 // Remove unread private members
 
         public ProductivityReportController(IProductivityReportService service)
         {
             _service = service;
         }
 
-        [HttpGet]
-        public IActionResult GetReport() => new JsonResult(_service.GetReport());
+        //[HttpGet]
+        //public IActionResult GetReport() => new JsonResult(_service.GetReport());
     }
 }

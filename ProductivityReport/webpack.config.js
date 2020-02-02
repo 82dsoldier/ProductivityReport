@@ -4,7 +4,7 @@ var OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 module.exports = {
   entry: {
-    'home/index': ['./src/ts/home/index.tsx', './src/scss/common.scss']
+    'home/new_index': ['./src/ts/home/new_index.tsx', './src/scss/common.scss']
   },
   devtool: 'source-map',
   output: {
