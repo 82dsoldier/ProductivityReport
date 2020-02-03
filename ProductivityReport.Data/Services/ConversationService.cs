@@ -12,5 +12,7 @@ namespace ProductivityReport.Data
         }
 
         public override Conversation Get(int id) => _context.Conversations.First(a => a.ConversationID == id);
+
+        public IEnumerable<string> GetWebsites() => _context.Conversations.GroupBy(a => a.Website).Select(b => b.FirstOrDefault()).Select(c => c.Website);
     }
 }

@@ -44,11 +44,6 @@ namespace ProductivityReport.Controllers {
 			return View();
 		}
 
-		[HttpPost]
-		public IActionResult New_Index(DateTime? startDate, DateTime? endDate, string predefinedFilter, string filterType, string webSite, string device) {
-			return View();
-		}
-
 		private List<SelectListItem> GetListItems(string predefinedFilter) {
 			return new List<SelectListItem> {
 				new SelectListItem("Today", "1", predefinedFilter=="1"),

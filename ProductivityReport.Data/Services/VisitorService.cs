@@ -12,5 +12,7 @@ namespace ProductivityReport.Data
         }
 
         public override Visitor Get(int id) => _context.Visitors.First(a => a.VisitorID == id);
+
+        public IEnumerable<string> GetDevices() => _context.Visitors.GroupBy(a => a.Device).Select(b => b.First()).Select(c => c.Device);
     }
 }

@@ -6,5 +6,6 @@ namespace ProductivityReport.Data
 {
     public interface IConversationService : IServiceBase<Conversation>
     {
+        IEnumerable<string> GetWebsites();
     }
 }

@@ -6,5 +6,6 @@ namespace ProductivityReport.Data
 {
     public interface IVisitorService : IServiceBase<Visitor>
     {
+        IEnumerable<string> GetDevices();
     }
 }

@@ -36,7 +36,7 @@ namespace ProductivityReport.Data
                     ReactiveReceived = entry.ReactiveReceived ?? 0,
                     ReactiveResponseRate = entry.ReactiveReceived > 0 ? ((float)entry.ReactiveAnswered / (float)entry.ReactiveReceived).ToString("P0") : "-",
                     TotalChatLength = new TimeSpan(0, 0, entry.TotalChatLength ?? 0).ToString("g"),
-                    AverageChatLength = (entry.TotalChatLength != null && entry.TotalChats != null) ? new TimeSpan(0, 0, (int)entry.TotalChatLength / (int)entry.TotalChats).ToString("g") : "0"
+                    AverageChatLength = (entry.TotalChatLength != null && entry.TotalChats != null  && entry.TotalChats > 0) ? new TimeSpan(0, 0, (int)entry.TotalChatLength / (int)entry.TotalChats).ToString("g") : "0"
                 };
 
         }

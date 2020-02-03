@@ -24104,10 +24104,10 @@ module.exports = g;
 
 /***/ }),
 
-/***/ "./src/ts/home/index.tsx":
-/*!*******************************!*\
-  !*** ./src/ts/home/index.tsx ***!
-  \*******************************/
+/***/ "./src/ts/home/new_index.tsx":
+/*!***********************************!*\
+  !*** ./src/ts/home/new_index.tsx ***!
+  \***********************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -24153,15 +24153,34 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 var ReactDOM = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
 var react_bootstrap_1 = __webpack_require__(/*! react-bootstrap */ "./node_modules/react-bootstrap/esm/index.js");
+__webpack_require__(/*! ../../scss/common.scss */ "./src/scss/common.scss");
+var SelectEntry = (function () {
+    function SelectEntry() {
+    }
+    return SelectEntry;
+}());
 var Index = function () {
     var _a = React.useState([]), entries = _a[0], setEntries = _a[1];
     var _b = React.useState(''), err = _b[0], setError = _b[1];
+    var _c = React.useState(false), showCustom = _c[0], setShowCustom = _c[1];
+    var _d = React.useState(null), startDate = _d[0], setStartDate = _d[1];
+    var _e = React.useState(null), endDate = _e[0], setEndDate = _e[1];
+    var _f = React.useState([]), webSites = _f[0], setWebSites = _f[1];
+    var _g = React.useState([]), devices = _g[0], setDevices = _g[1];
+    var _h = React.useState(''), selectedWebSite = _h[0], setSelectedWebSite = _h[1];
+    var _j = React.useState(''), selectedDevice = _j[0], setSelectedDevice = _j[1];
     var startIndex = 0;
     var fetchData = function () { return __awaiter(void 0, void 0, void 0, function () {
-        var res;
+        var url, res;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4, fetch('/api/ProductivityReport')];
+                case 0:
+                    url = new URL(window.location.protocol + '//' + window.location.host + '/api/ProductivityReport');
+                    url.searchParams.append('startDate', startDate ? startDate.toISOString() : null);
+                    url.searchParams.append('endDate', endDate ? endDate.toISOString() : null);
+                    url.searchParams.append('website', selectedWebSite);
+                    url.searchParams.append('device', selectedDevice);
+                    return [4, fetch(url.href)];
                 case 1:
                     res = _a.sent();
                     res.json()
@@ -24175,38 +24194,252 @@ var Index = function () {
     }); };
     React.useEffect(function () {
         fetchData();
+        fetch('/api/Conversations/GetWebsites')
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+            var webList = new Array();
+            webList.push({
+                text: '',
+                value: '0',
+                isSelected: true
+            });
+            data.map(function (item) {
+                webList.push({
+                    text: item,
+                    value: item,
+                    isSelected: false
+                });
+            });
+            setWebSites(webList);
+        })
+            .catch(function (err) { return setError(err); });
+        fetch('/api/Visitors/GetDevices')
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+            var deviceList = new Array();
+            deviceList.push({
+                text: '',
+                value: '0',
+                isSelected: true
+            });
+            data.map(function (item) {
+                deviceList.push({
+                    text: item,
+                    value: item,
+                    isSelected: false
+                });
+            });
+            setDevices(deviceList);
+        }).catch(function (err) { return setError(err); });
     }, []);
+    var onDateFilterChanged = function (evt) {
+        if (evt.currentTarget.value == '1') {
+            setShowCustom(false);
+        }
+        else {
+            setShowCustom(true);
+        }
+        return true;
+    };
+    var onCustomDateFilterChanged = function (evt) {
+        var sd = new Date();
+        var ed = new Date();
+        switch (evt.currentTarget.value) {
+            case '0': {
+                fetchData();
+                break;
+            }
+            case '1': {
+                setStartDate(sd);
+                setEndDate(ed);
+                fetchData();
+                break;
+            }
+            case '2': {
+                sd.setDate(sd.getDate() - 1);
+                setStartDate(sd);
+                setEndDate(sd);
+                fetchData();
+                break;
+            }
+            case '3': {
+                var day = startDate.getDay();
+                var diff = startDate.getDate() - day + (day === 0 ? -6 : 1);
+                sd.setDate(diff);
+                ed.setDate(sd.getDate() + 6);
+                setStartDate(sd);
+                setEndDate(ed);
+                fetchData();
+                break;
+            }
+            case '4': {
+                sd.setDate(sd.getDate() - 7);
+                var day = sd.getDay();
+                var diff = sd.getDate() - day + (day === 0 ? -6 : 1);
+                sd.setDate(diff);
+                ed.setDate(sd.getDate() + 6);
+                setStartDate(sd);
+                setEndDate(ed);
+                fetchData();
+                break;
+            }
+            case '5': {
+                var date = new Date();
+                var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+                var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+                setStartDate(firstDay);
+                setEndDate(lastDay);
+                fetchData();
+                break;
+            }
+            case '6': {
+                var date = new Date();
+                var firstDay = new Date(date.getFullYear(), date.getMonth() - 1, 1);
+                var lastDay = new Date(date.getFullYear(), date.getMonth(), 0);
+                setStartDate(firstDay);
+                setEndDate(lastDay);
+                fetchData();
+                break;
+            }
+            case '7': {
+                var date = new Date();
+                var firstDay = new Date(date.getFullYear(), 0, 1);
+                var lastDay = new Date(date.getFullYear(), 11, 31);
+                setStartDate(firstDay);
+                setEndDate(lastDay);
+                fetchData();
+                break;
+            }
+            case '8': {
+                var date = new Date();
+                var firstDay = new Date(date.getFullYear() - 1, 0, 1);
+                var lastDay = new Date(date.getFullYear() - 1, 11, 31);
+                setStartDate(firstDay);
+                setEndDate(lastDay);
+                fetchData();
+                break;
+            }
+        }
+    };
+    var onCustomStartDateChanged = function (evt) {
+        var date = new Date(evt.currentTarget.value);
+        setStartDate(date);
+        fetchData();
+    };
+    var onCustomEndDateChanged = function (evt) {
+        var date = new Date(evt.currentTarget.value);
+        setEndDate(date);
+        fetchData();
+    };
+    var onSelectedWebsiteChanged = function (evt) {
+        setSelectedWebSite(evt.currentTarget.value);
+        fetchData();
+    };
+    var onSelectedDeviceChanged = function (evt) {
+        setSelectedDevice(evt.currentTarget.value);
+        fetchData();
+    };
+    var onClear = function () {
+        setStartDate(null);
+        setEndDate(null);
+        setSelectedWebSite(null);
+        setSelectedDevice(null);
+        fetchData();
+    };
     return (React.createElement(React.Fragment, null,
-        React.createElement(react_bootstrap_1.Navbar, { bg: 'light', expand: 'lg' },
-            React.createElement(react_bootstrap_1.Navbar.Brand, { href: '/' }, "Productivity Report")),
-        React.createElement(react_bootstrap_1.Container, null),
         React.createElement(react_bootstrap_1.Container, null,
-            React.createElement(react_bootstrap_1.Table, { striped: true, bordered: true },
-                React.createElement("thead", null,
-                    React.createElement("tr", null,
-                        React.createElement("td", null, "S. No"),
-                        React.createElement("td", null, "Operator Name"),
-                        React.createElement("td", null, "Proactive Sent"),
-                        React.createElement("td", null, "Proactive Answered"),
-                        React.createElement("td", null, "Proactive Response Rate"),
-                        React.createElement("td", null, "Reactive Received"),
-                        React.createElement("td", null, "Reactive Answered"),
-                        React.createElement("td", null, "Reactive Response Rate"),
-                        React.createElement("td", null, "Total Chat Length"),
-                        React.createElement("td", null, "Average Chat Length"))),
-                React.createElement("tbody", null, entries.map(function (item) {
-                    return React.createElement("tr", null,
-                        React.createElement("td", null, item.operatorID),
-                        React.createElement("td", null, item.name),
-                        React.createElement("td", null, item.proactiveSent),
-                        React.createElement("td", null, item.proactiveAnswered),
-                        React.createElement("td", null, item.proactiveResponseRate),
-                        React.createElement("td", null, item.reactiveReceived),
-                        React.createElement("td", null, item.reactiveAnswered),
-                        React.createElement("td", null, item.reactiveResponseRate),
-                        React.createElement("td", null, item.totalChatLength),
-                        React.createElement("td", null, item.averageChatLength));
-                }))))));
+            React.createElement(react_bootstrap_1.Row, null,
+                React.createElement("h3", null, "Productivity Report")),
+            React.createElement(react_bootstrap_1.Row, null,
+                React.createElement("div", null, err)),
+            React.createElement(react_bootstrap_1.Row, null,
+                React.createElement(react_bootstrap_1.Col, { md: '12' },
+                    React.createElement(react_bootstrap_1.Table, { striped: true, bordered: true, hover: true, responsive: true },
+                        React.createElement("thead", null,
+                            React.createElement("tr", null,
+                                React.createElement("td", null, "S. No"),
+                                React.createElement("td", null, "Operator Name"),
+                                React.createElement("td", null, "Proactive Sent"),
+                                React.createElement("td", null, "Proactive Answered"),
+                                React.createElement("td", null, "Proactive Response Rate"),
+                                React.createElement("td", null, "Reactive Received"),
+                                React.createElement("td", null, "Reactive Answered"),
+                                React.createElement("td", null, "Reactive Response Rate"),
+                                React.createElement("td", null, "Total Chat Length"),
+                                React.createElement("td", null, "Average Chat Length"))),
+                        React.createElement("tbody", null, entries.map(function (item) {
+                            return React.createElement("tr", null,
+                                React.createElement("td", null, item.operatorID),
+                                React.createElement("td", null, item.name),
+                                React.createElement("td", null, item.proactiveSent),
+                                React.createElement("td", null, item.proactiveAnswered),
+                                React.createElement("td", null, item.proactiveResponseRate),
+                                React.createElement("td", null, item.reactiveReceived),
+                                React.createElement("td", null, item.reactiveAnswered),
+                                React.createElement("td", null, item.reactiveResponseRate),
+                                React.createElement("td", null, item.totalChatLength),
+                                React.createElement("td", null, item.averageChatLength));
+                        }))))),
+            React.createElement(react_bootstrap_1.Row, null,
+                React.createElement(react_bootstrap_1.Col, { md: '2' },
+                    React.createElement("h4", null, "Filtering"))),
+            React.createElement(react_bootstrap_1.Row, null,
+                React.createElement(react_bootstrap_1.Col, { md: '1', style: { fontWeight: 'bold' } }, "Date"),
+                React.createElement(react_bootstrap_1.Form.Group, { as: react_bootstrap_1.Col, md: '2', controlId: 'dateFilter' },
+                    React.createElement(react_bootstrap_1.Form.Check, { type: 'radio', id: 'predefinedDateFilter', label: 'Predefined', value: '1', checked: !showCustom, onChange: onDateFilterChanged }),
+                    React.createElement(react_bootstrap_1.Form.Check, { type: 'radio', id: 'customDateFilter', label: 'Custom', value: '2', checked: showCustom, onChange: onDateFilterChanged })),
+                React.createElement(react_bootstrap_1.Col, { md: '6' },
+                    React.createElement("span", { style: showCustom ? { display: 'none' } : { display: 'block' } },
+                        React.createElement(react_bootstrap_1.Form.Control, { as: 'select', onChange: onCustomDateFilterChanged },
+                            React.createElement("option", { value: '0' }),
+                            React.createElement("option", { value: '1' }, "Today"),
+                            React.createElement("option", { value: '2' }, "Yesterday"),
+                            React.createElement("option", { value: '3' }, "This Week"),
+                            React.createElement("option", { value: '4' }, "Last Week"),
+                            React.createElement("option", { value: '5' }, "This Month"),
+                            React.createElement("option", { value: '6' }, "Last Month"),
+                            React.createElement("option", { value: '7' }, "This Year"),
+                            React.createElement("option", { value: '8' }, "Last Year"))),
+                    React.createElement("span", { style: showCustom ? { display: 'block' } : { display: 'none' } },
+                        React.createElement(react_bootstrap_1.Col, { md: '6', style: { display: 'inline-block' } },
+                            React.createElement("label", null,
+                                "Start Date",
+                                React.createElement(react_bootstrap_1.Form.Control, { type: 'text', onBlur: onCustomStartDateChanged }))),
+                        React.createElement(react_bootstrap_1.Col, { md: '6', style: { display: 'inline-block' } },
+                            React.createElement("label", null,
+                                "End Date",
+                                React.createElement(react_bootstrap_1.Form.Control, { type: 'text', onBlur: onCustomEndDateChanged })))))),
+            React.createElement(react_bootstrap_1.Row, null,
+                React.createElement(react_bootstrap_1.Col, { md: '1', style: { fontWeight: 'bold' } }, "Web site"),
+                React.createElement(react_bootstrap_1.Col, { md: '2' },
+                    React.createElement(react_bootstrap_1.Form.Control, { as: 'select', onChange: onSelectedWebsiteChanged }, webSites.map(function (item) {
+                        return React.createElement("option", { value: item.value, selected: item.isSelected }, item.text);
+                    })))),
+            React.createElement(react_bootstrap_1.Row, null,
+                React.createElement(react_bootstrap_1.Col, { md: '1', style: { fontWeight: 'bold' } }, "Device"),
+                React.createElement(react_bootstrap_1.Col, { md: '2' },
+                    React.createElement(react_bootstrap_1.Form.Control, { as: 'select', onChange: onSelectedDeviceChanged }, devices.map(function (item) {
+                        return React.createElement("option", { value: item.value, selected: item.isSelected }, item.text);
+                    })))),
+            React.createElement(react_bootstrap_1.Row, null,
+                React.createElement(react_bootstrap_1.Col, { md: '1' },
+                    React.createElement(react_bootstrap_1.Button, { onClick: onClear }, "Clear"))),
+            React.createElement(react_bootstrap_1.Row, null,
+                React.createElement("p", null, "This is the site as I would remake it if it were givent to me as a project with no technology restrictions."),
+                React.createElement("ul", null,
+                    React.createElement("li", null, "Rather than relying on MVC to fetch data, I have added a data layer for the project.  This data layer is based on Entity Framework Core and provides a context with models and services for fetching data.  This separates the data layer into a separate project for easier debugging and programming.  If necessary, the common components such as models and interfaces could be pulled out of the data layer and placed into a \"common\" library.  This would allow complete decoupling and even replacing of the data layer if necessary.  The same app could then be run against may different data sources by simply replacing one file."),
+                    React.createElement("li", null, "In addition to having a separate data layer, I have provided an API for data retrieval.  This allows simpler sharing of data between applications."),
+                    React.createElement("li", null, "The front end has been rewritten using React and react-bootstrap.  I like to use react because it allows me to create reusable components that can be dropped into any page where they are needed.  Its use of state for data refresh also reduces the complexity of code as I don't have to worry about refreshing the page and reassigning values to components.")),
+                React.createElement("p", null, "TODO for this version:"),
+                React.createElement("ul", null,
+                    React.createElement("li", null, "Move the connection string to an application configuration file with encryption if possible."),
+                    React.createElement("li", null, "Ensure that the site is running under a service account that can be used to access the database to prevent embedding a username and password in the connection string."),
+                    React.createElement("li", null, "Fix the issue that is requiring the website to be selected twice before the filtering will change."),
+                    React.createElement("li", null, "Verify that the totals are correct when applying filtering by website and device at the same time.")),
+                React.createElement("p", null, "The last two issues are items that I should have had fixed before sending the application in except that I simply ran out of time.  If I were working on an actual application, I would have mitigated this with the following:"),
+                React.createElement("ul", null,
+                    React.createElement("li", null, "There should be unit tests on the data layer and the API to ensure that they are providing correct data for known parameters"),
+                    React.createElement("li", null, "Even without unit tests, I would have known parameters with which to test.  At present, I don't know enough about the data set with which I am working and do not have accurate counts that should be returned for different filter types."))))));
 };
 ReactDOM.render(React.createElement(Index, null), document.getElementById('app'));
 
@@ -24214,17 +24447,17 @@ ReactDOM.render(React.createElement(Index, null), document.getElementById('app')
 /***/ }),
 
 /***/ 0:
-/*!************************************************************!*\
-  !*** multi ./src/ts/home/index.tsx ./src/scss/common.scss ***!
-  \************************************************************/
+/*!****************************************************************!*\
+  !*** multi ./src/ts/home/new_index.tsx ./src/scss/common.scss ***!
+  \****************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! ./src/ts/home/index.tsx */"./src/ts/home/index.tsx");
+__webpack_require__(/*! ./src/ts/home/new_index.tsx */"./src/ts/home/new_index.tsx");
 module.exports = __webpack_require__(/*! ./src/scss/common.scss */"./src/scss/common.scss");
 
 
 /***/ })
 
 /******/ });
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=new_index.js.map

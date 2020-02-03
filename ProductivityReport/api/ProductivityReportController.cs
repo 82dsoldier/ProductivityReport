@@ -19,7 +19,7 @@ namespace ProductivityReport.api
             _service = service;
         }
 
-        //[HttpGet]
-        //public IActionResult GetReport() => new JsonResult(_service.GetReport());
+        [HttpGet]
+        public IActionResult GetReport([FromQuery]DateTime? startDate, [FromQuery]DateTime? endDate, string webSite, string device) => new JsonResult(_service.GetReport(startDate, endDate, webSite, device));
     }
 }

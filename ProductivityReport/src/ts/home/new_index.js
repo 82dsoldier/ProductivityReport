@@ -39,15 +39,30 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var React = require("react");
 var ReactDOM = require("react-dom");
 var react_bootstrap_1 = require("react-bootstrap");
+require("../../scss/common.scss");
+var SelectEntry = (function () {
+    function SelectEntry() {
+    }
+    return SelectEntry;
+}());
 var Index = function () {
     var _a = React.useState([]), entries = _a[0], setEntries = _a[1];
     var _b = React.useState(''), err = _b[0], setError = _b[1];
+    var _c = React.useState(false), showCustom = _c[0], setShowCustom = _c[1];
+    var _d = React.useState(new Date()), startDate = _d[0], setStartDate = _d[1];
+    var _e = React.useState(new Date()), endDate = _e[0], setEndDate = _e[1];
+    var _f = React.useState([]), webSites = _f[0], setWebSites = _f[1];
+    var _g = React.useState([]), devices = _g[0], setDevices = _g[1];
     var startIndex = 0;
-    var fetchData = function () { return __awaiter(void 0, void 0, void 0, function () {
-        var res;
+    var fetchData = function (startDate, endDate) { return __awaiter(void 0, void 0, void 0, function () {
+        var url, res, web, device;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4, fetch('/api/ProductivityReport')];
+                case 0:
+                    url = new URL(window.location.protocol + '//' + window.location.host + '/api/ProductivityReport');
+                    url.searchParams.append('startDate', startDate ? startDate.toISOString() : null);
+                    url.searchParams.append('endDate', endDate ? endDate.toISOString() : null);
+                    return [4, fetch(url.href)];
                 case 1:
                     res = _a.sent();
                     res.json()
@@ -55,6 +70,46 @@ var Index = function () {
                         setEntries(data);
                     })
                         .catch(function (err) { return setError(err); });
+                    return [4, fetch('/api/Conversations/GetWebsites')];
+                case 2:
+                    web = _a.sent();
+                    web.json()
+                        .then(function (data) {
+                        var webList = new Array();
+                        webList.push({
+                            text: '',
+                            value: '0',
+                            isSelected: true
+                        });
+                        data.map(function (item) {
+                            webList.push({
+                                text: item,
+                                value: item,
+                                isSelected: false
+                            });
+                        });
+                        setWebSites(webList);
+                    });
+                    return [4, fetch('/api/Visitors/GetDevices')];
+                case 3:
+                    device = _a.sent();
+                    device.json()
+                        .then(function (data) {
+                        var deviceList = new Array();
+                        deviceList.push({
+                            text: '',
+                            value: '0',
+                            isSelected: true
+                        });
+                        data.map(function (item) {
+                            deviceList.push({
+                                text: item,
+                                value: item,
+                                isSelected: false
+                            });
+                        });
+                        setDevices(deviceList);
+                    });
                     return [2];
             }
         });
@@ -62,37 +117,178 @@ var Index = function () {
     React.useEffect(function () {
         fetchData();
     }, []);
+    var onDateFilterChanged = function (evt) {
+        if (evt.currentTarget.value == '1') {
+            setShowCustom(false);
+        }
+        else {
+            setShowCustom(true);
+        }
+        return true;
+    };
+    var onCustomDateFilterChanged = function (evt) {
+        var sd = new Date();
+        var ed = new Date();
+        switch (evt.currentTarget.value) {
+            case '0': {
+                fetchData();
+                break;
+            }
+            case '1': {
+                setStartDate(sd);
+                setEndDate(ed);
+                fetchData(sd, ed);
+                break;
+            }
+            case '2': {
+                sd.setDate(sd.getDate() - 1);
+                setStartDate(sd);
+                setEndDate(sd);
+                fetchData(sd, sd);
+                break;
+            }
+            case '3': {
+                var day = startDate.getDay();
+                var diff = startDate.getDate() - day + (day === 0 ? -6 : 1);
+                sd.setDate(diff);
+                ed.setDate(sd.getDate() + 6);
+                setStartDate(sd);
+                setEndDate(ed);
+                fetchData(sd, ed);
+                break;
+            }
+            case '4': {
+                sd.setDate(sd.getDate() - 7);
+                var day = sd.getDay();
+                var diff = sd.getDate() - day + (day === 0 ? -6 : 1);
+                sd.setDate(diff);
+                ed.setDate(sd.getDate() + 6);
+                setStartDate(sd);
+                setEndDate(ed);
+                fetchData(sd, ed);
+                break;
+            }
+            case '5': {
+                var date = new Date();
+                var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+                var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+                setStartDate(firstDay);
+                setEndDate(lastDay);
+                fetchData(firstDay, lastDay);
+                break;
+            }
+            case '6': {
+                var date = new Date();
+                var firstDay = new Date(date.getFullYear(), date.getMonth() - 1, 1);
+                var lastDay = new Date(date.getFullYear(), date.getMonth(), 0);
+                setStartDate(firstDay);
+                setEndDate(lastDay);
+                fetchData(firstDay, lastDay);
+                break;
+            }
+            case '7': {
+                var date = new Date();
+                var firstDay = new Date(date.getFullYear(), 0, 1);
+                var lastDay = new Date(date.getFullYear(), 11, 31);
+                setStartDate(firstDay);
+                setEndDate(lastDay);
+                fetchData(firstDay, lastDay);
+                break;
+            }
+            case '8': {
+                var date = new Date();
+                var firstDay = new Date(date.getFullYear() - 1, 0, 1);
+                var lastDay = new Date(date.getFullYear() - 1, 11, 31);
+                setStartDate(firstDay);
+                setEndDate(lastDay);
+                fetchData(firstDay, lastDay);
+                break;
+            }
+        }
+    };
+    var onCustomStartDateChanged = function (evt) {
+        var date = new Date(evt.currentTarget.value);
+        setStartDate(date);
+        fetchData(date, endDate);
+    };
+    var onCustomEndDateChanged = function (evt) {
+        var date = new Date(evt.currentTarget.value);
+        setEndDate(date);
+        fetchData(startDate, endDate);
+    };
     return (React.createElement(React.Fragment, null,
-        React.createElement(react_bootstrap_1.Navbar, { bg: 'light', expand: 'lg' },
-            React.createElement(react_bootstrap_1.Navbar.Brand, { href: '/' }, "Productivity Report")),
-        React.createElement(react_bootstrap_1.Container, null),
         React.createElement(react_bootstrap_1.Container, null,
-            React.createElement(react_bootstrap_1.Table, { striped: true, bordered: true },
-                React.createElement("thead", null,
-                    React.createElement("tr", null,
-                        React.createElement("td", null, "S. No"),
-                        React.createElement("td", null, "Operator Name"),
-                        React.createElement("td", null, "Proactive Sent"),
-                        React.createElement("td", null, "Proactive Answered"),
-                        React.createElement("td", null, "Proactive Response Rate"),
-                        React.createElement("td", null, "Reactive Received"),
-                        React.createElement("td", null, "Reactive Answered"),
-                        React.createElement("td", null, "Reactive Response Rate"),
-                        React.createElement("td", null, "Total Chat Length"),
-                        React.createElement("td", null, "Average Chat Length"))),
-                React.createElement("tbody", null, entries.map(function (item) {
-                    return React.createElement("tr", null,
-                        React.createElement("td", null, item.operatorID),
-                        React.createElement("td", null, item.name),
-                        React.createElement("td", null, item.proactiveSent),
-                        React.createElement("td", null, item.proactiveAnswered),
-                        React.createElement("td", null, item.proactiveResponseRate),
-                        React.createElement("td", null, item.reactiveReceived),
-                        React.createElement("td", null, item.reactiveAnswered),
-                        React.createElement("td", null, item.reactiveResponseRate),
-                        React.createElement("td", null, item.totalChatLength),
-                        React.createElement("td", null, item.averageChatLength));
-                }))))));
+            React.createElement(react_bootstrap_1.Row, null,
+                React.createElement("h3", null, "Productivity Report")),
+            React.createElement(react_bootstrap_1.Row, null,
+                React.createElement(react_bootstrap_1.Col, { md: '12' },
+                    React.createElement(react_bootstrap_1.Table, { striped: true, bordered: true, hover: true, responsive: true },
+                        React.createElement("thead", null,
+                            React.createElement("tr", null,
+                                React.createElement("td", null, "S. No"),
+                                React.createElement("td", null, "Operator Name"),
+                                React.createElement("td", null, "Proactive Sent"),
+                                React.createElement("td", null, "Proactive Answered"),
+                                React.createElement("td", null, "Proactive Response Rate"),
+                                React.createElement("td", null, "Reactive Received"),
+                                React.createElement("td", null, "Reactive Answered"),
+                                React.createElement("td", null, "Reactive Response Rate"),
+                                React.createElement("td", null, "Total Chat Length"),
+                                React.createElement("td", null, "Average Chat Length"))),
+                        React.createElement("tbody", null, entries.map(function (item) {
+                            return React.createElement("tr", null,
+                                React.createElement("td", null, item.operatorID),
+                                React.createElement("td", null, item.name),
+                                React.createElement("td", null, item.proactiveSent),
+                                React.createElement("td", null, item.proactiveAnswered),
+                                React.createElement("td", null, item.proactiveResponseRate),
+                                React.createElement("td", null, item.reactiveReceived),
+                                React.createElement("td", null, item.reactiveAnswered),
+                                React.createElement("td", null, item.reactiveResponseRate),
+                                React.createElement("td", null, item.totalChatLength),
+                                React.createElement("td", null, item.averageChatLength));
+                        }))))),
+            React.createElement(react_bootstrap_1.Row, null,
+                React.createElement(react_bootstrap_1.Col, { md: '2' },
+                    React.createElement("h4", null, "Filtering"))),
+            React.createElement(react_bootstrap_1.Row, null,
+                React.createElement(react_bootstrap_1.Col, { md: '1', style: { fontWeight: 'bold' } }, "Date"),
+                React.createElement(react_bootstrap_1.Form.Group, { as: react_bootstrap_1.Col, md: '2', controlId: 'dateFilter' },
+                    React.createElement(react_bootstrap_1.Form.Check, { type: 'radio', id: 'predefinedDateFilter', label: 'Predefined', value: '1', checked: !showCustom, onChange: onDateFilterChanged }),
+                    React.createElement(react_bootstrap_1.Form.Check, { type: 'radio', id: 'customDateFilter', label: 'Custom', value: '2', checked: showCustom, onChange: onDateFilterChanged })),
+                React.createElement(react_bootstrap_1.Col, { md: '6' },
+                    React.createElement("span", { style: showCustom ? { display: 'none' } : { display: 'block' } },
+                        React.createElement(react_bootstrap_1.Form.Control, { as: 'select', onChange: onCustomDateFilterChanged },
+                            React.createElement("option", { value: '0' }),
+                            React.createElement("option", { value: '1' }, "Today"),
+                            React.createElement("option", { value: '2' }, "Yesterday"),
+                            React.createElement("option", { value: '3' }, "This Week"),
+                            React.createElement("option", { value: '4' }, "Last Week"),
+                            React.createElement("option", { value: '5' }, "This Month"),
+                            React.createElement("option", { value: '6' }, "Last Month"),
+                            React.createElement("option", { value: '7' }, "This Year"),
+                            React.createElement("option", { value: '8' }, "Last Year"))),
+                    React.createElement("span", { style: showCustom ? { display: 'block' } : { display: 'none' } },
+                        React.createElement(react_bootstrap_1.Col, { md: '6', style: { display: 'inline-block' } },
+                            React.createElement("label", null,
+                                "Start Date",
+                                React.createElement(react_bootstrap_1.Form.Control, { type: 'text', onBlur: onCustomStartDateChanged }))),
+                        React.createElement(react_bootstrap_1.Col, { md: '6', style: { display: 'inline-block' } },
+                            React.createElement("label", null,
+                                "End Date",
+                                React.createElement(react_bootstrap_1.Form.Control, { type: 'text', onBlur: onCustomEndDateChanged })))))),
+            React.createElement(react_bootstrap_1.Row, null,
+                React.createElement(react_bootstrap_1.Col, { md: '1', style: { fontWeight: 'bold' } }, "Web site"),
+                React.createElement(react_bootstrap_1.Col, { md: '2' },
+                    React.createElement(react_bootstrap_1.Form.Control, { as: 'select' }, webSites.map(function (item) {
+                        return React.createElement("option", { value: item.value, selected: item.isSelected }, item.text);
+                    })))),
+            React.createElement(react_bootstrap_1.Row, null,
+                React.createElement(react_bootstrap_1.Col, { md: '1', style: { fontWeight: 'bold' } }, "Device"),
+                React.createElement(react_bootstrap_1.Col, { md: '2' },
+                    React.createElement(react_bootstrap_1.Form.Control, { as: 'select' }, devices.map(function (item) {
+                        return React.createElement("option", { value: item.value, selected: item.isSelected }, item.text);
+                    })))))));
 };
 ReactDOM.render(React.createElement(Index, null), document.getElementById('app'));
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=new_index.js.map
